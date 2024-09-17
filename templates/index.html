@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IP Analysis</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-8">
+    <div class="max-w-4xl mx-auto bg-white p-6 rounded-lg shadow-md">
+        <h1 class="text-2xl font-bold mb-4">IP Analysis</h1>
+        <form action="/analyze" method="post" class="mb-6">
+            <div class="mb-4">
+                <label for="api_key" class="block text-sm font-medium text-gray-700">API Key:</label>
+                <input type="text" id="api_key" name="api_key" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+            </div>
+            <div class="mb-4">
+                <label for="ip_addresses" class="block text-sm font-medium text-gray-700">IP Addresses (one per line or CSV):</label>
+                <textarea id="ip_addresses" name="ip_addresses" rows="4" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"></textarea>
+            </div>
+            <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                Analyze
+            </button>
+        </form>
+        <p>Tool that checks if an IP address is likely to be a VPN, privacy relay, or CDN</p>
+
+        {% if results %}
+        
+        <h2 class="text-xl font-semibold mb-2">Results:</h2>
+        <div class="overflow-x-auto mb-4">
+            <table class="min-w-full bg-white">
+                <thead class="bg-gray-100">
+                    <tr>
+                        <th class="py-2 px-4 border-b">IP</th>
+                        <th class="py-2 px-4 border-b">Organization</th>
+                        <th class="py-2 px-4 border-b">Is VPN?</th>
+                        <th class="py-2 px-4 border-b">Analysis</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for result in results %}
+                    <tr>
+                        <td class="py-2 px-4 border-b">{{ result.ip }}</td>
+                        <td class="py-2 px-4 border-b">{{ result.org_name }}</td>
+                        <td class="py-2 px-4 border-b">{{ result.is_vpn }}</td>
+                        <td class="py-2 px-4 border-b">{{ result.vpn_analysis }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Display JSON results -->
+        <h2 class="text-xl font-semibold mb-2">JSON Output:</h2>
+        <pre id="json-results" class="p-4 bg-gray-100 rounded-lg mb-4 overflow-auto max-h-96">{{ json_results | safe }}</pre>
+
+        <!-- Download JSON link -->
+        <button id="download-json" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">Download JSON</button>
+
+        <script>
+            document.getElementById('download-json').addEventListener('click', function () {
+                const jsonResults = document.getElementById('json-results').innerText;
+                const blob = new Blob([jsonResults], { type: "application/json" });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.style.display = 'none';
+                a.href = url;
+                a.download = 'ip_analysis_results.json';
+                document.body.appendChild(a);
+                a.click();
+                URL.revokeObjectURL(url);
+            });
+        </script>
+        {% endif %}
+    </div>
+</body>
+</html>

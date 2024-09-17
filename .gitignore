@@ -1,0 +1,6 @@
+__pycache__
+*.pyc
+.env
+note
+thing.json
+ip_list.csv
